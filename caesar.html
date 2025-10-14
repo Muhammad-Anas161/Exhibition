@@ -5,6 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Caesar Cipher Demo</title>
   <style>
+    
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    button {
+      background: transparent;
+      border: 2px solid #00eaff27;
+      color: #00eaff;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, #00eaff, transparent);
+      transition: 0.4s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      box-shadow: 0 0 1px #00eaff, inset 0 0 1px #00eaff;
+      transform: scale(1.05);
+      color: #fff;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    .grid-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(#00eaff33 1px, transparent 1px), linear-gradient(90deg, #00eaff33 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      animation: moveGrid 15s linear infinite;
+    }
+
+    @keyframes moveGrid {
+      from { background-position: 0 0; }
+      to { background-position: 40px 40px; }
+    }
     body {
       font-family: Poppins, sans-serif;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
@@ -60,6 +126,8 @@
   <button onclick="decrypt()">Decrypt</button>
 
   <div class="output" id="result"></div>
+          <button onclick="location.href='index.html'">Hashing Demo</button>
+
 
   <script>
     function caesarShift(str, amount) {
