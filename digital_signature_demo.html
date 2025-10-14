@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Signature Verification Demo</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0a192f, #000);
+    color: #fff;
+    text-align: center;
+    padding: 30px;
+  }
+  h1 { color: #64ffda; }
+  .container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #64ffda;
+    border-radius: 16px;
+    width: 320px;
+    padding: 20px;
+    margin: 15px;
+    box-shadow: 0 0 15px #00e6b8;
+  }
+  textarea {
+    width: 90%;
+    height: 60px;
+    border-radius: 8px;
+    border: none;
+    padding: 10px;
+    font-size: 15px;
+    resize: none;
+  }
+  button {
+    background: #64ffda;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .arrow {
+    font-size: 40px;
+    margin: 20px;
+    animation: blink 1.5s infinite alternate;
+  }
+  @keyframes blink {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+  }
+  .result {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h1>🖊️ Digital Signature Verification Demo 🔐</h1>
+<p>See how a sender signs a message using a <b>private key</b> and a receiver verifies it using the <b>public key</b>.</p>
+
+<div class="container">
+  <div class="card" id="sender">
+    <h2>👩‍💻 Sender (Alice)</h2>
+    <textarea id="message" placeholder="Type message to sign..."></textarea><br>
+    <button onclick="generateKeys()">Generate Keys</button><br>
+    <button onclick="signMessage()">Sign with Private Key</button>
+    <p id="signatureDisplay"></p>
+  </div>
+
+  <div class="arrow">➡️</div>
+
+  <div class="card" id="receiver">
+    <h2>📩 Receiver (Bob)</h2>
+    <textarea id="receivedMessage" placeholder="Paste signed message here..."></textarea><br>
+    <button onclick="verifySignature()">Verify Signature</button>
+    <p id="verifyResult" class="result"></p>
+  </div>
+</div>
+
+<script>
+let publicKey, privateKey, signature;
+
+// Generate RSA key pair
+async function generateKeys() {
+  const keyPair = await window.crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256"
+    },
+    true,
+    ["sign", "verify"]
+  );
+  publicKey = keyPair.publicKey;
+  privateKey = keyPair.privateKey;
+  alert("🔑 Keys generated for Alice!");
+}
+
+// Sign message using private key
+async function signMessage() {
+  const message = document.getElementById("message").value;
+  if (!message) return alert("Type a message first!");
+  if (!privateKey) return alert("Generate keys first!");
+  const enc = new TextEncoder();
+  const data = enc.encode(message);
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", privateKey, data);
+  signature = btoa(String.fromCharCode(...new Uint8Array(sig)));
+  document.getElementById("signatureDisplay").innerHTML =
+    "🖋️ <b>Digital Signature:</b><br>" + signature.slice(0, 80) + "...";
+  document.getElementById("receivedMessage").value = message;
+}
+
+// Verify signature using public key
+async function verifySignature() {
+  if (!signature) return alert("No signature found!");
+  const message = document.getElementById("receivedMessage").value;
+  const enc = new TextEncoder();
+  const data = enc.encode(message);
+  const sigBytes = Uint8Array.from(atob(signature), c => c.charCodeAt(0));
+  const verified = await crypto.subtle.verify(
+    "RSASSA-PKCS1-v1_5",
+    publicKey,
+    sigBytes,
+    data
+  );
+  const result = document.getElementById("verifyResult");
+  if (verified) {
+    result.style.color = "#00ff88";
+    result.textContent = "✅ Signature Verified! Message is authentic and not altered.";
+  } else {
+    result.style.color = "#ff4444";
+    result.textContent = "❌ Verification Failed! Message was changed or forged.";
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>🔐 Live Password Leak & Hash Demo</title>
+<style>
+  :root {
+    --bg: #071426;
+    --card: #0f2740;
+    --accent: #06d6a0;
+    --danger: #ff6b6b;
+    --text: #e6f0ff;
+  }
+  body {
+    margin: 0;
+    font-family: Poppins, system-ui, sans-serif;
+    background: radial-gradient(circle at top left, #0c2340, #000);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    overflow-x: hidden;
+  }
+  .wrap {
+    width: 920px;
+    max-width: 98%;
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 0 30px rgba(0,255,180,0.15);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 1s ease forwards;
+  }
+  h1 {
+    font-size: 22px;
+    color: var(--accent);
+    margin: 0 0 6px;
+    text-align: center;
+  }
+  option{
+    color: black;
+  }
+  p.lead {
+    text-align: center;
+    opacity: 0.85;
+    margin-bottom: 18px;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 350px; gap: 16px; }
+  .card {
+    background: var(--card);
+    padding: 16px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(0,255,180,0.15), transparent 70%);
+    pointer-events: none;
+  }
+  label { display:block; margin-bottom:6px; font-size:14px; }
+  input, textarea, select {
+    width:100%; padding:10px;
+    background: rgba(255,255,255,0.06);
+    border:none; border-radius:8px;
+    color: var(--text);
+    font-family: monospace;
+  }
+  textarea { height: 170px; resize: vertical; }
+  button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  #hashBtn { background: var(--accent); color: #002; }
+  #checkBtn { background: #00b4d8; color: white; }
+  #crackBtn { background: var(--danger); color: white; }
+  button:hover { transform: scale(1.05); box-shadow: 0 0 12px rgba(255,255,255,0.2); }
+  .output, .hibp-res {
+    background: rgba(0,0,0,0.4);
+    padding: 10px; border-radius: 8px;
+    margin-top: 10px; font-family: monospace;
+    word-break: break-all;
+  }
+  .hibp-res.good { color: #7be1ad; border: 1px solid #06d6a0; animation: pulseGreen 1s ease; }
+  .hibp-res.bad { color: #ff6b6b; border: 1px solid #ff6b6b; animation: pulseRed 1s ease; }
+  .progress { height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow:hidden; margin-top:10px; }
+  .bar { height:100%; width:0; background:linear-gradient(90deg,var(--accent),#00b4d8); transition: width 0.2s; }
+  .status { font-size:13px; margin-top:8px; }
+  footer { margin-top:12px; text-align:center; opacity:0.8; font-size:12px; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:none;} }
+  @keyframes pulseGreen { 0% { box-shadow:0 0 0 rgba(0,255,180,0.6);} 100% { box-shadow:0 0 30px rgba(0,255,180,0);} }
+  @keyframes pulseRed { 0% { box-shadow:0 0 0 rgba(255,0,0,0.6);} 100% { box-shadow:0 0 30px rgba(255,0,0,0);} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>💥 Real-Time Password Leak & Hashing Demo</h1>
+  <p class="lead">Type a password, see its hash, and check if it’s been leaked using <b>Have I Been Pwned</b>.</p>
+
+  <div class="grid">
+    <div class="card">
+      <label>🔑 Password</label>
+      <input type="text" id="password" placeholder="Enter password e.g. P@ssw0rd123" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <select id="algo">
+          <option value="sha256">SHA-256</option>
+          <option value="md5">MD5</option>
+        </select>
+        <button id="hashBtn">Generate Hash</button>
+        <button id="checkBtn">Check Leak</button>
+      </div>
+
+      <div class="output" id="hashOut">—</div>
+      <div class="hibp-res" id="hibpRes">Not checked yet.</div>
+
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="status" id="status">Idle</div>
+    </div>
+
+    <aside class="card">
+      <label>Most Common Wordlist</label>
+      <textarea id="wordlist" spellcheck="false">password
+123456
+123456789
+qwerty
+password123
+letmein
+admin
+iloveyou
+welcome
+sunshine</textarea>
+    </aside>
+  </div>
+
+  <footer>⚠️ Educational demo — passwords never sent in plain text.</footer>
+</div>
+
+<script>
+async function sha1Hex(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-1', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+async function sha256Hex(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+const hashBtn = document.getElementById('hashBtn');
+const checkBtn = document.getElementById('checkBtn');
+const hashOut = document.getElementById('hashOut');
+const hibpRes = document.getElementById('hibpRes');
+const password = document.getElementById('password');
+const bar = document.getElementById('bar');
+const status = document.getElementById('status');
+
+hashBtn.onclick = async ()=>{
+  const val = password.value.trim();
+  if(!val) return alert("Enter a password");
+  const algo = document.getElementById('algo').value;
+  const hash = algo === 'sha256' ? await sha256Hex(val) : (await sha1Hex(val));
+  hashOut.textContent = hash;
+  hibpRes.textContent = "Not checked yet.";
+  hibpRes.className = "hibp-res";
+};
+
+checkBtn.onclick = async ()=>{
+  const val = password.value.trim();
+  if(!val) return alert("Enter a password first!");
+  hibpRes.textContent = "Checking online (Have I Been Pwned)...";
+  hibpRes.className = "hibp-res";
+  status.textContent = "Contacting HIBP...";
+  try {
+    const sha1 = await sha1Hex(val);
+    const prefix = sha1.slice(0,5);
+    const suffix = sha1.slice(5);
+    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    const text = await res.text();
+    const found = text.split('\n').find(line => line.startsWith(suffix));
+    if(found){
+      const count = found.split(':')[1];
+      hibpRes.innerHTML = `❌ <b>Leaked!</b> Found ${count} times in breaches.`;
+      hibpRes.className = "hibp-res bad";
+    } else {
+      hibpRes.innerHTML = `✅ <b>Safe!</b> This password was not found in any known leaks.`;
+      hibpRes.className = "hibp-res good";
+    }
+    status.textContent = "Check completed successfully.";
+  } catch(e){
+    hibpRes.innerHTML = `⚠️ Error: ${e.message}`;
+    hibpRes.className = "hibp-res bad";
+    status.textContent = "Check failed (network/CORS?).";
+  }
+};
+</script>
+</body>
+</html>

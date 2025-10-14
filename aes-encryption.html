@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AES Symmetric Encryption Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    body {
+      font-family: Poppins, sans-serif;
+      background: linear-gradient(135deg, #232526, #414345);
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #00e5ff;
+      font-size: 2rem;
+    }
+    textarea, input {
+      width: 60%;
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 10px 25px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #00e5ff;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #00b0ff;
+    }
+    .output {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      width: 60%;
+      margin-left: auto;
+      margin-right: auto;
+      word-wrap: break-word;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 AES Symmetric Encryption Demo</h1>
+  <p>Both encryption and decryption use the <b>same secret key</b>.</p>
+
+  <textarea id="text" rows="3" placeholder="Enter message..."></textarea><br>
+  <input type="text" id="key" placeholder="Enter secret key (e.g. mysecret123)" /><br>
+  <button onclick="encrypt()">Encrypt</button>
+  <button onclick="decrypt()">Decrypt</button>
+
+  <div class="output" id="result"></div>
+
+  <script>
+    function encrypt() {
+      const text = document.getElementById("text").value;
+      const key = document.getElementById("key").value;
+      if (!text || !key) {
+        alert("Enter message and key!");
+        return;
+      }
+      const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+      document.getElementById("result").innerHTML = "🔒 Encrypted Text:<br>" + encrypted;
+    }
+
+    function decrypt() {
+      const text = document.getElementById("text").value;
+      const key = document.getElementById("key").value;
+      if (!text || !key) {
+        alert("Enter encrypted text and key!");
+        return;
+      }
+      try {
+        const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+        document.getElementById("result").innerHTML = "🔓 Decrypted Text:<br>" + (decrypted || "Invalid key!");
+      } catch {
+        document.getElementById("result").innerHTML = "❌ Wrong key or text format!";
+      }
+    }
+  </script>
+</body>
+</html>
