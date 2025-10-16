@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Caesar Cipher Demo</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     
     .buttons {
@@ -89,22 +90,23 @@
       border-radius: 10px;
       border: none;
       font-size: 1rem;
+    background: rgba(255,255,255,0.06);
+color: white;
+      box-shadow: 0 0 10px rgba(0,255,180,0.1);
+      transition: 0.3s;
     }
     button {
       padding: 10px 20px;
-      border: none;
+      /* border: none; */
       border-radius: 10px;
-      background: #00e676;
-      color: black;
+      /* background: #00e676; */
+      color: rgb(255, 255, 255);
       font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
     }
-    button:hover {
-      background: #00b248;
-    }
     .output {
-      margin-top: 20px;
+      margin: 20px;
       font-size: 1.2rem;
       background: rgba(255,255,255,0.1);
       padding: 15px;
@@ -116,7 +118,7 @@
   </style>
 </head>
 <body>
-  <h1>🔐 Caesar Cipher Encryption Demo</h1>
+  <h1>🔐 Caesar Cipher Encryption</h1>
   <p>Enter any text and choose a shift number to encrypt or decrypt it.</p>
 
   <textarea id="text" rows="3" placeholder="Enter your message..."></textarea><br>
@@ -125,8 +127,9 @@
   <button onclick="encrypt()">Encrypt</button>
   <button onclick="decrypt()">Decrypt</button>
 
-  <div class="output" id="result"></div>
-          <button onclick="location.href='index.html'">Hashing Demo</button>
+  <div class="output" id="result">Encrypted text will be here</div>
+          <button class="demobutton" onclick="location.href='index.html'">Hashing</button>
+          <button class="demobutton" onclick="location.href='rsa.html'">Asymmetric</button>
 
 
   <script>

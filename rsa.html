@@ -4,82 +4,321 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RSA Visual Demo — Public / Private (Exhibition)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@600&display=swap" rel="stylesheet">
+
     <style>
-      :root{
-        --bg1:#071426; --bg2:#1b3350; --card:rgba(255,255,255,0.05);
-        --accent:#06d6a0; /* Green/teal for receiver */
-        --accent2:#ffd166; /* Yellow/orange for sender */
-        --danger:#ff6b6b;
+*{
+  font-family: 'Inter', sans-serif;
+}
+      :root {
+        --bg1: #071426;
+        --bg2: #1b3350;
+        --card: rgba(255, 255, 255, 0.05);
+        --accent: #06d6a0; /* Green/teal for receiver */
+        --accent2: #ffd166; /* Yellow/orange for sender */
+        --danger: #ff6b6b;
       }
-      body{
-        margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-        background: linear-gradient(135deg,var(--bg1),var(--bg2));
-        color:#e9f0ff; -webkit-font-smoothing:antialiased; padding:20px;
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(135deg, var(--bg1), var(--bg2));
+        color: #e9f0ff;
+        -webkit-font-smoothing: antialiased;
+        padding: 20px;
       }
-      .wrap{max-width:1100px;margin:0 auto;}
-      header{display:flex;gap:16px;align-items:center;justify-content:space-between}
-      h1{margin:0;font-size:20px;color:var(--accent2)}
-      p.lead{margin:4px 0 18px;color:#cfe8ff;opacity:0.9}
-      .layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
-      .panel{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
-      .device-list{display:flex;flex-direction:column;gap:10px;max-height:620px;overflow:auto;padding-right:6px}
-      .device{
-        padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-        display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,0.03);
+      .wrap {
+        /* max-width: 1100px; */
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+      p.lead {
+        margin: 4px 0 18px;
+        color: #cfe8ff;
+        opacity: 0.9;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 18px;
+      }
+      .panel {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+      .device-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 620px;
+        overflow: auto;
+        padding-right: 6px;
+      }
+      .device {
+        padding: 10px;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          transparent
+        );
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
         transition: border-color 0.2s ease, background 0.2s ease; /* Smooth transition for highlights */
       }
-      .device:hover{
-        border-color: rgba(255,255,255,0.1); /* Subtle hover effect */
+      .device:hover {
+        border-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
       }
-      .device.selected-sender{
-        border:1px solid var(--accent2); /* Yellow/orange for sender */
-        background:linear-gradient(180deg,rgba(255,255,255,0.05),transparent);
+      .device.selected-sender {
+        border: 1px solid var(--accent2); /* Yellow/orange for sender */
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.05),
+          transparent
+        );
       }
-      .device.selected-receiver{
-        border:1px solid var(--accent); /* Green/teal for receiver */
-        background:linear-gradient(180deg,rgba(255,255,255,0.05),transparent);
+      .device.selected-receiver {
+        border: 1px solid var(--accent); /* Green/teal for receiver */
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.05),
+          transparent
+        );
       }
 
-      .device .title{display:flex;justify-content:space-between;align-items:center; flex-wrap:wrap; gap:6px }
-      .device .name{font-weight:700}
-      .tiny{font-size:12px;opacity:0.9}
-      .btn{background:var(--accent);border:none;padding:8px 10px;border-radius:8px;color:#022;cursor:pointer;font-weight:700}
-      .btn.secondary{background:linear-gradient(90deg,#118ab2,#06aacf);color:#fff}
-      .controls{display:flex;gap:8px;align-items:center;margin-top:6px; font-size: 11px;}
-      input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-      label{font-size:13px;opacity:0.9}
+      .device .title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        font-weight: 900;
+        gap: 6px;
+      }
+      .device .name {
+        font-weight: 700;
+      }
+      .tiny {
+        font-size: 12px;
+        opacity: 0.9;
+      }
+      .btn {
+        background: var(--accent);
+        border: none;
+        padding: 8px 10px;
+        border-radius: 8px;
+        color: #022;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn.secondary {
+        background: linear-gradient(90deg, #118ab2, #06aacf);
+        color: #fff;
+        font-size: small;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 6px;
+        font-size: 11px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: transparent;
+        color: inherit;
+      }
+      label {
+        font-size: 13px;
+        opacity: 0.9;
+      }
       /* Main area */
-      
-      .stage{display:flex;flex-direction:column;gap:14px}
-      .card-lg{padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));}
-      .row{display:flex;gap:12px;align-items:flex-start}
-      .col{flex:1}
-      textarea{width:100%;height:90px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;padding:10px;font-family:monospace}
-      pre{background:rgba(0,0,0,0.35);padding:10px;border-radius:8px;overflow:auto;font-size:13px}
-      .biglock{font-size:84px;display:flex;align-items:center;justify-content:center;height:120px;transition:transform 600ms, color 600ms}
-      .locked{color:var(--danger);transform:scale(1.1) rotate(-6deg)}
-      .unlocked{color:var(--accent);transform:scale(1.05) rotate(6deg)}
-      .arrow-row{display:flex;justify-content:space-around;align-items:center;padding:6px 0}
-      .arrow{width:33%;text-align:center;opacity:0.95; height: 120px;}
-      .arrow .box{padding:12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03)}
-      .timeline{max-height:220px;overflow:auto;padding:8px;border-radius:8px;background:rgba(0,0,0,0.28)}
-      .event{padding:8px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent)}
-      .ok{color:var(--accent);font-weight:700}
-      .bad{color:var(--danger);font-weight:700}
-      .finger{font-family:monospace;font-size:12px;background:rgba(0,0,0,0.35);padding:6px;border-radius:6px}
-      .small{font-size:13px;color:#cfe8ff;opacity:0.9}
-      .muted{opacity:0.7}
-      footer{margin-top:18px;text-align:center;color:#c9e6ff;opacity:0.7}
+
+      .stage {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .card-lg {
+        padding: 0 18px;
+        border-radius: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(255, 255, 255, 0.01)
+        );
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .col {
+        flex: 1;
+      }
+      textarea {
+        height: 90px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: transparent;
+        color: inherit;
+        padding: 10px;
+        font-family: monospace;
+      }
+      pre {
+        background: rgba(0, 0, 0, 0.35);
+        padding: 10px;
+        border-radius: 8px;
+        overflow: auto;
+        font-size: 13px;
+      }
+      .biglock {
+        font-size: 84px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        transition: transform 600ms, color 600ms;
+      }
+      .locked {
+        color: var(--danger);
+        transform: scale(1.1) rotate(-6deg);
+      }
+      .unlocked {
+        color: var(--accent);
+        transform: scale(1.05) rotate(6deg);
+      }
+      .arrow-row {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 6px 0;
+      }
+      .arrow {
+        width: 33%;
+        text-align: center;
+        opacity: 0.95;
+        height: 120px;
+      }
+      .arrow .box {
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .timeline {
+        max-height: 220px;
+        overflow: auto;
+        padding: 8px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.28);
+      }
+      .event {
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          transparent
+        );
+      }
+      .ok {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .bad {
+        color: var(--danger);
+        font-weight: 700;
+      }
+      .finger {
+        font-family: monospace;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 6px;
+        border-radius: 6px;
+      }
+      .small {
+        font-size: 13px;
+        color: #cfe8ff;
+        opacity: 0.9;
+      }
+      .muted {
+        opacity: 0.7;
+      }
+      footer {
+        margin-top: 18px;
+        text-align: center;
+        color: #c9e6ff;
+        opacity: 0.7;
+      }
+      .hidden {
+        display: none;
+      }
       /* responsive */
-      @media (max-width:980px){ .layout{grid-template-columns:1fr} .biglock{height:90px;font-size:56px} }
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .biglock {
+          height: 90px;
+          font-size: 56px;
+        }
+      }
+      
+            body {
+  font-family: 'Inter', sans-serif;
+  background: #071426;
+  color: #dfe6f8;
+}
+
+h1, h2, h3, .h1 {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #00ffaa;
+}
+
+pre, code, textarea {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255,255,255,0.05);
+  color: #9fdfff;
+  border-radius: 10px;
+  padding: 10px;
+  overflow-x: auto;
+}
+.heading-cryp{
+  text-align: center;
+}
+.deviceshead{
+  margin: 10px;
+}
+
     </style>
   </head>
   <body>
     <div class="wrap">
       <header>
         <div>
-          <h1>
-            RSA Visual Demo — Public Key locks 🔒 · Private Key unlocks 🔓
+          <h1 class="heading-cryp">
+            Asymmetric Cryptography
+             Public Key locks 🔒 · Private Key unlocks 🔓
           </h1>
           <p class="lead">
             Create devices, generate key-pairs, share public key, encrypt with
@@ -87,10 +326,6 @@
             VERIFY which key was used visually.
           </p>
         </div>
-        <div style="text-align: right">
-          <div class="small muted">
-            Exhibition-ready • Offline • Browser-only
-          </div>
         </div>
       </header>
 
@@ -105,13 +340,17 @@
             <button class="btn" id="addDevice">Add</button>
           </div>
 
-          <div class="device-list" id="devices"></div>
+          <h1 class="deviceshead">Devices 💻 </h1>
+          <div class="device-list" id="devices">
+          </div>
 
           <div style="margin-top: 12px" class="small">
             Tip: Add 2 devices (sender and receiver). Click
             <b>Generate Keys</b> on each. Then use the receiver's public key to
             encrypt a message and decrypt using receiver's private key.
           </div>
+           <button class="demobutton" onclick="location.href='index.html'">Hashing</button>
+          <button class="demobutton" onclick="location.href='caesar.html'">Caesar Cipher</button>
         </aside>
 
         <main class="stage">
@@ -128,14 +367,14 @@
                 <label class="small"
                   >Selected Sender (who will type message)</label
                 >
-                <div id="selSender" class="tiny">— none —</div>
+                <div id="selSender" class="tiny h1">— none —</div>
               </div>
 
               <div>
                 <label class="small"
                   >Selected Receiver (whose public key will be used)</label
                 >
-                <div id="selReceiver" class="tiny">— none —</div>
+                <div id="selReceiver" class="tiny h1">— none —</div>
               </div>
 
               <div style="text-align: center">
@@ -152,48 +391,192 @@
               "
             />
 
-            <div class="row">
-              <div class="col">
-                <label class="small">Type message (Sender)</label>
-                <textarea
-                  id="msg"
-                  placeholder="Type a demo secret here..."
-                ></textarea>
+           <div class="row improved-row">
+  <div class="col main-col">
+    <label class="small">Type message (Sender)</label>
+    <textarea id="msg" placeholder="Type a demo secret here..." class="msg-area"></textarea>
 
-                <div style="display: flex; gap: 8px; margin-top: 8px">
-                  <button class="btn secondary" id="encryptBtn">
-                    Encrypt using Receiver's Public Key
-                  </button>
+    <div class="actions">
+      <button class="btn secondary" id="encryptBtn">Encrypt using Receiver's Public Key</button>
+      <button class="btn hidden" id="exportPubBtn" disabled>Export Receiver Public PEM (Copy)</button>
+    </div>
+  </div>
 
-                  <button class="btn" id="exportPubBtn" disabled>
-                    Export Receiver Public PEM (Copy)
-                  </button>
-                </div>
-              </div>
+  <aside class="side-col">
+  <div class="arrow-row">
+    <div class="box-row">
+      <div class="muted">Public Key Used:</div>
+      <pre id="pubUsed" class="pub-used" onclick="copyToClipboard('pubUsed')">— none —</pre>
+    </div>
 
-              <div style="width: 340px">
-                <div class="arrow-row">
-                  <div class="arrow">
-                    <div class="box">
-                      <div class="muted">Public Key Used:</div>
-                      <div id="pubUsed" class="finger">— none —</div>
-                    </div>
-                  </div>
+    <div class="box-row">
+      <div class="muted">Ciphertext (base64)</div>
+      <pre id="cipherOut" class="cipher-pre" onclick="copyToClipboard('cipherOut')">—</pre>
+    </div>
 
-                  <div class="arrow">
-                    <div class="box">
-                      <div class="muted">Ciphertext (base64)</div>
-                      <pre id="cipherOut" style="height: 86px">—</pre>
-                    </div>
-                  </div>
-                </div>
+    <div class="box-row hidden" id="fingerBox">
+      <div class="muted">Fingerprint</div>
+      <div id="cipherFP" class="finger" onclick="copyToClipboard('cipherFP')">—</div>
+    </div>
+  </div>
 
-                <div style="margin-top: 8px" class="small">
-                  You can copy the ciphertext and try to decrypt with any
-                  device's private key (below).
-                </div>
-              </div>
-            </div>
+  <div class="helper small">
+    You can copy the ciphertext and try to decrypt with any device's private key (below).
+  </div>
+</aside>
+
+<script>
+function copyToClipboard(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const text = (el.innerText || el.textContent || "").trim();
+  if (!text || text === "—" || text === "— none —") return;
+
+  navigator.clipboard.writeText(text).then(() => {
+    el.style.transition = "box-shadow 0.3s ease";
+    el.style.boxShadow = "0 0 10px limegreen";
+    setTimeout(() => (el.style.boxShadow = ""), 600);
+    console.log("Copied to clipboard:", text);
+  }).catch(err => {
+    console.error("Clipboard copy failed:", err);
+  });
+}
+</script>
+
+</script>
+</div>
+<style>
+  /* layout container */
+.improved-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* left column grows, right column flexible but bounded */
+.improved-row .main-col {
+  flex: 1 1 420px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.improved-row .side-col {
+  flex: 0 0 360px;    /* preferred width */
+  min-width: 240px;
+  max-width: 42%;
+  box-sizing: border-box;
+}
+
+/* message area */
+.msg-area {
+  min-height: 110px;
+  max-height: 260px;
+  resize: vertical;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  font-family: 'Chakra Petch', system-ui, sans-serif;
+  color: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+}
+select{
+  color: white;
+}
+option{
+  color: black;
+}
+
+/* buttons row */
+.actions { display:flex; gap:10px; margin-top:8px; align-items:center; }
+@media (max-width:560px) { .actions { flex-direction:column; } .actions .btn { width:100%; } }
+
+/* arrow-row boxes */
+.arrow-row { display:flex; gap:10px; flex-direction:column; }
+@media (min-width:900px) { .arrow-row { flex-direction:row; } .arrow-row .box-row { flex:1 1 0; min-width:0; } }
+
+.box-row {
+  background: rgba(255,255,255,0.02);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 18px rgba(3,6,12,0.45);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:56px;
+}
+
+/* label */
+.box-row .muted { font-size:12px; color: rgba(200,220,255,0.6); }
+
+/* public key preview - use pre to preserve PEM newlines but wrap */
+.pub-used {
+  font-family: 'JetBrains Mono', monospace;
+  font-size:12px;
+  margin:0;
+  padding:8px;
+  background: rgba(0,0,0,0.25);
+  border-radius:6px;
+  color:#cfefff;
+  max-height:120px;
+  overflow:auto;
+  white-space:pre-wrap;   /* allow multi-line wrapping */
+  word-break:break-word;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ciphertext */
+.cipher-pre {
+  margin:0;
+  padding:8px;
+  background: rgba(0,0,0,0.18);
+  border-radius:6px;
+  max-height:120px;
+  overflow:auto;
+  white-space:pre-wrap;  /* wrap long base64 onto lines */
+  word-break:break-all;
+  font-family: 'JetBrains Mono', monospace;
+  font-size:12px;
+  color:#d9f6ff;
+}
+
+/* hide/ show helper */
+.hidden { display:none; }
+
+/* subtle custom scrollbar (webkit) - keeps them thin and dark */
+.pub-used::-webkit-scrollbar,
+.cipher-pre::-webkit-scrollbar {
+  height:8px; width:8px;
+}
+.pub-used::-webkit-scrollbar-thumb,
+.cipher-pre::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.06);
+  border-radius:6px;
+}
+.pub-used::-webkit-scrollbar-track,
+.cipher-pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* accessibility focus */
+.pub-used:focus, .cipher-pre:focus, .msg-area:focus {
+  outline: 2px solid rgba(0,180,255,0.12);
+  outline-offset: 2px;
+}
+
+/* smaller screens: make side stack under left */
+@media (max-width:720px) {
+  .improved-row .side-col { flex-basis:100%; max-width:100%; }
+  .arrow-row { gap:8px; }
+}
+
+</style>
           </div>
 
           <div class="card-lg">
@@ -205,7 +588,7 @@
                 justify-content: space-between;
               "
             >
-              <div style="flex: 1">
+              <div style="display: flex; flex-direction: column; gap: 8px">
                 <label class="small"
                   >Paste ciphertext to decrypt (choose device to attempt)</label
                 >
@@ -224,7 +607,6 @@
                       border-radius: 8px;
                       border: 1px solid rgba(255, 255, 255, 0.04);
                       background: transparent;
-                      color: inherit;
                     "
                   ></select>
 
@@ -253,7 +635,7 @@
                 justify-content: space-between;
               "
             >
-              <div>
+              <div class="hidden">
                 <strong>Public Key (Receiver shown when selected)</strong>
                 <div id="showPub" class="finger" style="margin-top: 6px">—</div>
               </div>
@@ -325,46 +707,65 @@
         timeline.prepend(div);
       }
 
-      /* UI helpers */
-      function refreshDeviceList() {
-        devicesEl.innerHTML = "";
-        chooseDevice.innerHTML =
-          '<option value="">-- select device --</option>';
-        for (const d of devices) {
-          const el = document.createElement("div");
-          el.className = "device"; // Base class // Add specific classes for highlighting
-          if (d.id === selectedSenderId) el.classList.add("selected-sender");
-          if (d.id === selectedReceiverId)
-            el.classList.add("selected-receiver");
+    function refreshDeviceList() {
+  devicesEl.innerHTML = "";
+  chooseDevice.innerHTML = '<option class="options" value="">-- select device --</option>';
 
-          el.innerHTML = `
+  for (const d of devices) {
+    const el = document.createElement("div");
+    el.className = "device";
+
+    if (d.id === selectedSenderId) el.classList.add("selected-sender");
+    if (d.id === selectedReceiverId) el.classList.add("selected-receiver");
+
+    // Device HTML
+    el.innerHTML = `
       <div class="title">
         <div class="name">${d.name}</div>
         <div class="controls">
           <button class="btn genkey-btn" data-id="${d.id}">Generate Keys</button>
-<button class="btn secondary sender-btn" data-id="${d.id}">Select Sender</button>
-<button class="btn secondary receiver-btn" data-id="${d.id}">Select Receiver</button>
-
+          <button class="btn secondary sender-btn" data-id="${d.id}">Select as Sender</button>
+          <button class="btn secondary receiver-btn" data-id="${d.id}">Select as Receiver</button>
         </div>
       </div>
-      <div class="tiny">Fingerprint: <span class="finger">${d.fp || "—"}</span></div>
+      <div class="tiny hidden">Fingerprint: <span class="finger">${d.fp || "—"}</span></div>
       <div class="tiny">Public (PEM) preview:</div>
-      <pre style="height:74px">${d.publicPem ? d.publicPem.slice(0, 240) + "\n..." : "— not generated —"}</pre>
+      <pre class="pub-preview" 
+           id="pub-${d.id}" 
+           style="cursor:pointer;"
+           title="Click to copy Public Key">${d.publicPem ? d.publicPem.slice(0, 240) + "\n..." : "— not generated —"}</pre>
     `;
-          devicesEl.appendChild(el);
 
-          const opt = document.createElement("option");
-          opt.value = d.id;
-          opt.textContent = d.name;
-          chooseDevice.appendChild(opt);
-        } // After rebuilding the list, ensure selection UI is consistent
-        refreshSelectionUI(); // This will update the top labels
-      }
+    devicesEl.appendChild(el);
+
+    // Add click event to copy the public key text
+    const pre = el.querySelector(".pub-preview");
+    pre.addEventListener("click", () => {
+      const text = (d.publicPem || "").trim();
+      if (!text) return;
+
+      navigator.clipboard.writeText(text).then(() => {
+        pre.style.transition = "box-shadow 0.3s ease";
+        pre.style.boxShadow = "0 0 10px limegreen";
+        setTimeout(() => (pre.style.boxShadow = ""), 600);
+        logEvent(`Public key copied for ${d.name}`, true);
+      });
+    });
+
+    // Add to dropdown
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = d.name;
+    chooseDevice.appendChild(opt);
+  }
+
+  refreshSelectionUI();
+}
 
       /* events */
       document.getElementById("addDevice").addEventListener("click", () => {
         const name = nameInput.value.trim() || `Device${devices.length + 1}`;
-        const id = "d" + Date.now().toString(36).slice(-6);
+const id = "d" + Math.random().toString(36).substring(2, 10);
         devices.push({
           id,
           name,
@@ -384,7 +785,8 @@
         let btn = null;
         if (e && e.currentTarget) btn = e.currentTarget;
         else if (e && e.target) btn = e.target;
-        else if (typeof e === "string") btn = document.querySelector(`button[data-id="${e}"]`);
+        else if (typeof e === "string")
+          btn = document.querySelector(`button[data-id="${e}"]`);
 
         // If btn is actually an inner element (like an icon), walk up until button
         if (btn && btn.tagName !== "BUTTON") {
@@ -409,7 +811,10 @@
 
         // disable the button safely if exists
         if (btn) {
-          try { btn.disabled = true; btn.textContent = "Generating..."; } catch (__) {}
+          try {
+            btn.disabled = true;
+            btn.textContent = "Generating...";
+          } catch (__) {}
         }
 
         try {
@@ -434,17 +839,29 @@
           logEvent(`Keys generated for ${d.name}. Fingerprint: ${d.fp}`, true);
           refreshDeviceList(); // Rebuild list to show updated keys/fingerprint
         } catch (err) {
-          logEvent("Key generation failed: " + (err && err.message ? err.message : err), false);
+          logEvent(
+            "Key generation failed: " +
+              (err && err.message ? err.message : err),
+            false
+          );
         } finally {
           if (btn) {
-            try { btn.disabled = false; btn.textContent = "Generate Keys"; } catch (__) {}
+            try {
+              btn.disabled = false;
+              btn.textContent = "Generate Keys";
+            } catch (__) {}
           }
         }
       };
 
       // New function to select sender
       window.onSelectSender = function (e) {
-        const id = e && e.currentTarget ? e.currentTarget.dataset.id : (e && e.target ? e.target.dataset && e.target.dataset.id : null);
+        const id =
+          e && e.currentTarget
+            ? e.currentTarget.dataset.id
+            : e && e.target
+            ? e.target.dataset && e.target.dataset.id
+            : null;
         const dObj = devices.find((x) => x.id === id);
         const deviceName = dObj ? dObj.name : id || "(unknown)";
         if (!id || !dObj) {
@@ -471,11 +888,19 @@
 
       // New function to select receiver
       window.onSelectReceiver = function (e) {
-        const id = e && e.currentTarget ? e.currentTarget.dataset.id : (e && e.target ? e.target.dataset && e.target.dataset.id : null);
+        const id =
+          e && e.currentTarget
+            ? e.currentTarget.dataset.id
+            : e && e.target
+            ? e.target.dataset && e.target.dataset.id
+            : null;
         const dObj = devices.find((x) => x.id === id);
         const deviceName = dObj ? dObj.name : id || "(unknown)";
         if (!id || !dObj) {
-          logEvent(`Receiver selection failed: device not found (${id})`, false);
+          logEvent(
+            `Receiver selection failed: device not found (${id})`,
+            false
+          );
           return;
         }
         if (selectedReceiverId === id) {
@@ -499,18 +924,27 @@
       function refreshSelectionUI() {
         // Update the displayed sender/receiver names at the top
         selSender.textContent = selectedSenderId
-          ? (devices.find((x) => x.id === selectedSenderId) || {name: "— none —"}).name
+          ? (
+              devices.find((x) => x.id === selectedSenderId) || {
+                name: "— none —",
+              }
+            ).name
           : "— none —";
         selReceiver.textContent = selectedReceiverId
-          ? (devices.find((x) => x.id === selectedReceiverId) || {name: "— none —"}).name
+          ? (
+              devices.find((x) => x.id === selectedReceiverId) || {
+                name: "— none —",
+              }
+            ).name
           : "— none —"; // Update the public key display for the receiver
-          console.log("Selected Receiver ID:", selectedReceiverId);
+        console.log("Selected Receiver ID:", selectedReceiverId);
 
         if (selectedReceiverId) {
           const d = devices.find((x) => x.id === selectedReceiverId);
-          pubShow.textContent = d && d.publicPem
-            ? d.publicPem.slice(0, 240) + "\n..."
-            : "— not generated —";
+          pubShow.textContent =
+            d && d.publicPem
+              ? d.publicPem.slice(0, 240) + "\n..."
+              : "— not generated —";
           exportPubBtn.disabled = !(d && d.publicPem);
         } else {
           pubShow.textContent = "—";
@@ -531,7 +965,6 @@
             deviceEl.classList.add("selected-receiver");
           }
         });
-        
       }
 
       /* export receiver public PEM */
@@ -568,92 +1001,107 @@
             const ctB64 = ab2b64(ct);
             cipherOut.textContent = ctB64;
             pubUsedEl.textContent = receiver.publicPem
-              ? receiver.publicPem.split("\n").slice(0, 2).join("\n") +
-                "\n..."
+              ? receiver.publicPem.split("\n").slice(0, 2).join("\n") + "\n..."
               : "—";
             cipherFP.textContent = receiver.fp || "—"; // animate lock closed
             bigLock.className = "biglock locked";
             logEvent(
-              `Message encrypted by "${sender ? sender.name : '(unknown)'}" using "${receiver.name}" public key. Fingerprint: ${receiver.fp}`,
+              `Message encrypted by "${
+                sender ? sender.name : "(unknown)"
+              }" using "${receiver.name}" public key. Fingerprint: ${
+                receiver.fp
+              }`,
               true
             );
           } catch (err) {
-            logEvent("Encryption failed: " + (err && err.message ? err.message : err), false);
-          }
-        });
-
-      /* Decryption attempt */
-      document
-        .getElementById("decryptBtn")
-        .addEventListener("click", async () => {
-          const ctB64 =
-            document.getElementById("cipherInput").value.trim() ||
-            document.getElementById("cipherOut").textContent.trim();
-          if (!ctB64)
-            return alert(
-              "No ciphertext provided (either paste or use the generated one)."
-            );
-          const deviceId = document.getElementById("chooseDevice").value;
-          if (!deviceId) return alert("Choose a device to attempt decrypt");
-          const device = devices.find((x) => x.id === deviceId);
-          if (!device || !device.privateKey)
-            return alert("Selected device has no private key generated");
-          try {
-            const ct = b642ab(ctB64);
-            const plainBuf = await window.crypto.subtle.decrypt(
-              { name: "RSA-OAEP" },
-              device.privateKey,
-              ct
-            );
-            const plaintext = new TextDecoder().decode(plainBuf);
-            document.getElementById("plainOut").textContent = plaintext; // verify if the public fingerprint used to encrypt matches this device's public fingerprint
-            const usedFp = cipherFP.textContent.trim();
-            const deviceFp = device.fp || "";
-            if (usedFp && deviceFp && usedFp === deviceFp) {
-              document.getElementById(
-                "verifyStatus"
-              ).innerHTML = `<span class="ok">VERIFIED — this device's private key matches the public key used to encrypt.</span>`;
-              bigLock.className = "biglock unlocked";
-              logEvent(
-                `Decrypt SUCCESS by "${device.name}" — fingerprint matched: ${device.fp}`,
-                true
-              );
-            } else {
-              document.getElementById(
-                "verifyStatus"
-              ).innerHTML = `<span class="bad">DECRYPTED but FINGERPRINT MISMATCH — message may not be intended for this device.</span>`;
-              bigLock.className = "biglock unlocked";
-              logEvent(
-                `Decrypt by "${device.name}" — success but fingerprint mismatch (used: ${usedFp} / device: ${deviceFp}).`,
-                false
-              );
-            }
-          } catch (err) {
-            document.getElementById("plainOut").textContent = "—";
-            document.getElementById(
-              "verifyStatus"
-            ).innerHTML = `<span class="bad">DECRYPTION FAILED — wrong key or corrupted ciphertext.</span>`;
-            bigLock.className = "biglock locked";
             logEvent(
-              `Decrypt FAILED by "${device ? device.name : '(unknown)'}" — ${err && err.message ? err.message : err}`,
+              "Encryption failed: " + (err && err.message ? err.message : err),
               false
             );
           }
         });
-        // Delegated button clicks (works even after refresh)
-devicesEl.addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-  const id = btn.dataset.id;
-  if (btn.classList.contains("genkey-btn")) {
-    onGenKey({ currentTarget: btn });
-  } else if (btn.classList.contains("sender-btn")) {
-    onSelectSender({ currentTarget: btn });
-  } else if (btn.classList.contains("receiver-btn")) {
-    onSelectReceiver({ currentTarget: btn });
+
+      /* Decryption attempt */
+     document.getElementById("decryptBtn").addEventListener("click", async () => {
+  const ctB64 =
+    document.getElementById("cipherInput").value.trim() ||
+    document.getElementById("cipherOut").textContent.trim();
+  const bigLock = document.getElementById("bigLock");
+
+  if (!ctB64)
+    return alert("No ciphertext provided (either paste or use the generated one).");
+
+  const deviceId = document.getElementById("chooseDevice").value;
+  if (!deviceId) return alert("Choose a device to attempt decrypt");
+
+  const device = devices.find((x) => x.id === deviceId);
+  if (!device || !device.privateKey)
+    return alert("Selected device has no private key generated");
+
+  try {
+    const ct = b642ab(ctB64);
+    const plainBuf = await window.crypto.subtle.decrypt(
+      { name: "RSA-OAEP" },
+      device.privateKey,
+      ct
+    );
+    const plaintext = new TextDecoder().decode(plainBuf);
+    document.getElementById("plainOut").textContent = plaintext;
+
+    const usedFp = cipherFP.textContent.trim();
+    const deviceFp = device.fp || "";
+
+    // ✅ Unlock animation + emoji change
+    if (usedFp && deviceFp && usedFp === deviceFp) {
+      document.getElementById("verifyStatus").innerHTML =
+        `<span class="ok">VERIFIED — correct private key used.</span>`;
+      bigLock.textContent = "🔓";
+      bigLock.className = "biglock unlocked";
+      logEvent(
+        `Decrypt SUCCESS by "${device.name}" — fingerprint matched: ${device.fp}`,
+        true
+      );
+    } else {
+      document.getElementById("verifyStatus").innerHTML =
+        `<span class="bad">DECRYPTED but FINGERPRINT MISMATCH.</span>`;
+      bigLock.textContent = "🔓";
+      bigLock.className = "biglock unlocked";
+      logEvent(
+        `Decrypt by "${device.name}" — success but fingerprint mismatch.`,
+        false
+      );
+    }
+  } catch (err) {
+    // ❌ Failure — relock + shake
+    bigLock.textContent = "🔒";
+    bigLock.className = "biglock locked shake";
+    setTimeout(() => bigLock.classList.remove("shake"), 500);
+
+    document.getElementById("plainOut").textContent = "—";
+    document.getElementById("verifyStatus").innerHTML =
+      `<span class="bad">DECRYPTION FAILED — wrong key or corrupted ciphertext.</span>`;
+    logEvent(
+      `Decrypt FAILED by "${device ? device.name : "(unknown)"}" — ${
+        err?.message || err
+      }`,
+      false
+    );
   }
 });
 
+      // Delegated button clicks (works even after refresh)
+      devicesEl.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.classList.contains("genkey-btn")) {
+          onGenKey({ currentTarget: btn });
+        } else if (btn.classList.contains("sender-btn")) {
+          onSelectSender({ currentTarget: btn });
+        } else if (btn.classList.contains("receiver-btn")) {
+          onSelectReceiver({ currentTarget: btn });
+        }
+      });
 
       /* initial demo seeds */
       (function seed() {
@@ -665,8 +1113,11 @@ devicesEl.addEventListener("click", (e) => {
         // auto-generate keys after short delay for demo
         setTimeout(() => {
           // find generate-key buttons freshly (they get re-created during refresh)
-          const buttons = Array.from(document.querySelectorAll("button"))
-            .filter((b) => b.textContent && b.textContent.includes("Generate Keys"));
+          const buttons = Array.from(
+            document.querySelectorAll("button")
+          ).filter(
+            (b) => b.textContent && b.textContent.includes("Generate Keys")
+          );
           if (buttons[0]) buttons[0].click();
           setTimeout(() => {
             if (buttons[1]) buttons[1].click();

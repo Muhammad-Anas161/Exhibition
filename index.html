@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>🔐 Live Password Leak & Hash Demo</title>
+<link rel="stylesheet" href="style.css">
 <style>
    .buttons {
       display: grid;
@@ -115,7 +116,6 @@
   textarea { height: 170px; resize: vertical; }
   button {
     padding: 10px 14px;
-    border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
@@ -166,7 +166,7 @@
       <div class="hibp-res" id="hibpRes">Not checked yet.</div>
 
       <div class="progress"><div class="bar" id="bar"></div></div>
-      <div class="status" id="status">Idle</div>
+      <div class="status" id="status">Status:</div>
     </div>
 
     <aside class="card">
@@ -185,7 +185,8 @@ sunshine</textarea>
   </div>
 
   <footer>⚠️ Educational — passwords never sent in plain text.</footer>
-        <button onclick="location.href='caesar.html'">Caesar Cipher</button>
+        <button class="demobutton" onclick="location.href='caesar.html'">Caesar Cipher</button>
+          <button class="demobutton" onclick="location.href='rsa.html'">Asymmetric</button>
 
 </div>
 
