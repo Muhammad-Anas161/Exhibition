@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mini Mining Simulator ⚡</title>
+  <style>
+    /* ===== GLOBAL STYLE ===== */
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top, #0b0b0d, #000);
+      color: #eee;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px 50px;
+    }
+    h1 {
+      text-align: center;
+      color: #00e0ff;
+      font-size: 2rem;
+      text-shadow: 0 0 12px #00bcd4;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: rgba(20, 20, 25, 0.8);
+      border: 1px solid rgba(0, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 600;
+      color: #00e0ff;
+      font-size: 0.95rem;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #00bcd4;
+      background: rgba(0, 20, 25, 0.6);
+      color: #eee;
+      font-family: monospace;
+      resize: none;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(90deg, #00bcd4, #0066ff);
+      color: white;
+      box-shadow: 0 0 10px #00bcd4aa;
+    }
+    button:hover:not(:disabled) {
+      background: linear-gradient(90deg, #00e0ff, #0099ff);
+      box-shadow: 0 0 20px #00bcd4;
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .status {
+      font-weight: 700;
+      margin-top: 10px;
+      color: #ffd54f;
+    }
+    .small {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /* ===== HASH BOX ===== */
+    .hashBox {
+      font-family: "Courier New", monospace;
+      word-break: break-all;
+      background: rgba(0, 20, 25, 0.7);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 255, 0.1);
+      box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.05);
+      color: #80faff;
+      max-height: 160px;
+      overflow-y: auto;
+      animation: flicker 2s infinite alternate;
+    }
+
+    @keyframes flicker {
+      from { box-shadow: inset 0 0 6px rgba(0,255,255,0.1); }
+      to { box-shadow: inset 0 0 10px rgba(0,255,255,0.25); }
+    }
+
+    /* ===== MINING STATUS GLOW ===== */
+    .mining-active {
+      color: #00ff80 !important;
+      text-shadow: 0 0 10px #00ff80;
+    }
+    .mining-idle {
+      color: #ff9800 !important;
+      text-shadow: 0 0 6px #ff9800;
+    }
+    .mining-found {
+      color: #00ffea !important;
+      text-shadow: 0 0 12px #00e0ff;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress {
+      height: 10px;
+      background: rgba(0, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e0ff, #00ff9d);
+      box-shadow: 0 0 10px #00ffbb;
+    }
+
+    /* ===== SCROLLBAR CUSTOMIZATION ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb {
+      background: #00bcd4;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💎 Mini Mining Simulator</h1>
+
+  <div class="card">
+    <label>Transaction Data:</label>
+    <textarea id="data" rows="3">Urooj pays 1 BTC; time: 2025-10-11 21:00</textarea>
+
+    <label>Previous Hash:</label>
+    <input id="prevHash" type="text" value="000000abcdef1234567890fedcba0987654321abcdef00000000000000000000">
+
+    <label>Difficulty (leading zeros):</label>
+    <select id="difficulty">
+      <option value="2">2 (Easy)</option>
+      <option value="3">3</option>
+      <option value="4" selected>4</option>
+      <option value="5">5</option>
+      <option value="6">6 (Hard)</option>
+    </select>
+
+    <div style="margin-top:12px;">
+      <button id="startBtn">Start Mining</button>
+      <button id="stopBtn" disabled>Stop</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="status" id="status" class="mining-idle">Status: idle</div>
+    <div class="progress"><div class="progress-inner" id="progressBar"></div></div>
+    <div class="small">
+      Nonce tried: <span id="nonceCount">0</span> • Hash rate: <span id="rate">0</span>/s
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Current Block:</label>
+    <div class="hashBox" id="blockData"></div>
+
+    <label>Latest Hash:</label>
+    <div class="hashBox" id="latestHash">—</div>
+
+    <label>Mined Block:</label>
+    <div class="hashBox" id="minedBlock">—</div>
+  </div>
+
+<script>
+  function buf2hex(buffer) {
+    const bytes = new Uint8Array(buffer);
+    return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  async function sha256Hex(message) {
+    const enc = new TextEncoder();
+    const data = enc.encode(message);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return buf2hex(hash);
+  }
+
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const dataEl = document.getElementById('data');
+  const prevHashEl = document.getElementById('prevHash');
+  const diffEl = document.getElementById('difficulty');
+  const statusEl = document.getElementById('status');
+  const latestHashEl = document.getElementById('latestHash');
+  const minedBlockEl = document.getElementById('minedBlock');
+  const blockDataEl = document.getElementById('blockData');
+  const nonceCountEl = document.getElementById('nonceCount');
+  const rateEl = document.getElementById('rate');
+  const progressBar = document.getElementById('progressBar');
+
+  let running = false;
+  let stopRequested = false;
+  let nonce = 0;
+  let tried = 0;
+
+  async function mineLoop() {
+    running = true;
+    stopRequested = false;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    statusEl.textContent = 'Status: mining...';
+    statusEl.className = 'status mining-active';
+    minedBlockEl.textContent = '—';
+    nonce = parseInt(nonce) || 0;
+    tried = 0;
+    let lastTime = performance.now();
+    let lastCount = 0;
+
+    const difficulty = parseInt(diffEl.value);
+    const targetPrefix = '0'.repeat(difficulty);
+
+    function updateBlockData() {
+      blockDataEl.textContent = `PrevHash: ${prevHashEl.value}\nData: ${dataEl.value}\nNonce: ${nonce}`;
+    }
+
+    updateBlockData();
+
+    while (!stopRequested) {
+      const chunk = 400;
+      for (let i = 0; i < chunk && !stopRequested; i++) {
+        const candidate = `${prevHashEl.value}|${dataEl.value}|${nonce}`;
+        const hash = await sha256Hex(candidate);
+        tried++;
+        nonce++;
+        latestHashEl.textContent = hash;
+        nonceCountEl.textContent = tried.toLocaleString();
+        updateBlockData();
+
+        if (hash.startsWith(targetPrefix)) {
+          minedBlockEl.textContent = `✅ FOUND!\nNonce: ${nonce - 1}\nHash: ${hash}\nData: ${candidate}`;
+          statusEl.textContent = 'Status: Block mined successfully!';
+          statusEl.className = 'status mining-found';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          running = false;
+          stopRequested = true;
+          progressBar.style.width = '100%';
+          return;
+        }
+      }
+
+      const now = performance.now();
+      const delta = (now - lastTime) / 1000;
+      if (delta >= 0.8) {
+        const countDelta = tried - lastCount;
+        const perSec = Math.round(countDelta / delta);
+        rateEl.textContent = perSec.toLocaleString();
+        lastTime = now;
+        lastCount = tried;
+        progressBar.style.width = Math.min((tried % 10000) / 100, 100) + "%";
+      }
+
+      await new Promise(r => setTimeout(r, 8));
+    }
+
+    statusEl.textContent = 'Status: stopped';
+    statusEl.className = 'status mining-idle';
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    running = false;
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (running) return;
+    mineLoop().catch(e => {
+      console.error(e);
+      statusEl.textContent = 'Status: error — see console';
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      running = false;
+    });
+  });
+  stopBtn.addEventListener('click', () => stopRequested = true);
+  resetBtn.addEventListener('click', () => {
+    nonce = 0; tried = 0;
+    nonceCountEl.textContent = '0';
+    latestHashEl.textContent = '—';
+    minedBlockEl.textContent = '—';
+    statusEl.textContent = 'Status: idle';
+    statusEl.className = 'status mining-idle';
+    rateEl.textContent = '0';
+    blockDataEl.textContent = '';
+    progressBar.style.width = '0%';
+  });
+</script>
+</body>
+</html>
